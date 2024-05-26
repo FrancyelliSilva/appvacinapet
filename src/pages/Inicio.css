@@ -1,0 +1,24 @@
+ion-title.title-large {
+    color: #c897d8;
+    font-size: 30px;
+  }
+  
+  ion-title {
+    --color: #fdfbfb;
+  }
+  
+  ion-toolbar {
+    --background: #7a797a; 
+  }
+
+  .color{
+    --background: #7a797a; 
+  }
+  
+  .inicio-content::part(background) {
+    background: url('/public/inicio.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+    
