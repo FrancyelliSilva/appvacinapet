@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonModal,
-  IonList, IonItem, IonLabel, IonInput
+  IonList, IonItem, IonLabel, IonInput, IonText
 } from '@ionic/react';
 
 const Consultar: React.FC = () => {
@@ -12,13 +12,23 @@ const Consultar: React.FC = () => {
   
   const [selectedPet, setSelectedPet] = useState<any>(null);
   
+  const [formData, setFormData] = useState({
+    nome: '', 
+    dataNascimento: '',
+    sexo: '',
+    especie: '',
+    raca: '',
+    observacoes: ''
+  });
+
   const [novaVacina, setNovaVacina] = useState({
     nome: '',
     marca: '',
     lote: '',
     dataAplicacao: '',
     proximaAplicacao: '',
-    veterinario: ''
+    veterinario: '',
+    peso:''
   });
 
   const [showConsultarVacinaModal, setShowConsultarVacinaModal] = useState(false);
@@ -28,7 +38,8 @@ const Consultar: React.FC = () => {
     lote: '',
     dataAplicacao: '',
     proximaAplicacao: '',
-    veterinario: ''
+    veterinario: '',
+    peso: ''
   });
 
   
@@ -37,7 +48,8 @@ const Consultar: React.FC = () => {
     marca: '',
     lote: '',
     dataAplicacao: '',
-    proximaAplicacao: ''
+    proximaAplicacao: '',
+    peso: ''
   });
 
   const [showConsultarVermifugoModal, setShowConsultarVermifugoModal] = useState (false);
@@ -46,13 +58,16 @@ const Consultar: React.FC = () => {
     marca: '',
     lote: '',
     dataAplicacao: '',
-    proximaAplicacao: ''
-  })
+    proximaAplicacao: '',
+    peso: ''
+  });
   
  
   useEffect(() => {
-    const petList = JSON.parse(localStorage.getItem('petList') || '[]');
-    setPetList(petList);
+    const storedPetList = localStorage.getItem('petList');
+    if (storedPetList){
+      setPetList(JSON.parse(storedPetList));
+    } 
   }, []);
 
   const handleOpenOuterModal = (pet: any) => {
@@ -72,13 +87,14 @@ const Consultar: React.FC = () => {
     setShowInnerModal(false);
   };
 
+
   const handleOpenAdicionarVermifugoModal = () => { 
     setShowAdicionarVermifugoModal(true);
-  }
+  };
 
   const handleCloseAdicionarVermifugoModal = () => { 
     setShowAdicionarVermifugoModal(false);
-  }
+  };
 
   const handleCloseConsultarVacinaModal = () => { 
     setShowConsultarVacinaModal(false);
@@ -86,7 +102,13 @@ const Consultar: React.FC = () => {
 
   const handleCloseConsultarVermifugoModal = () => { 
     setShowConsultarVermifugoModal(false);
-  }
+  };
+
+  const handleFormChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value.trim() });
+  };
+
 
   const handleDeletePet = () => {
     const updatedPetList = petList.filter(pet => pet.nome !== selectedPet.nome);
@@ -97,7 +119,7 @@ const Consultar: React.FC = () => {
 
   const validateAddVacina = () => {
     let valid = true;
-    let newErrors = { nome: "", marca: "", lote: "", dataAplicacao: "", proximaAplicacao: "", veterinario: "" };
+    let newErrors = { nome: "", marca: "", lote: "", dataAplicacao: "", proximaAplicacao: "", veterinario: "" , peso: ""};
     if (novaVacina.nome === "") {
       newErrors.nome = "Campo obrigatório";
       valid = false;
@@ -122,7 +144,7 @@ const Consultar: React.FC = () => {
       newErrors.veterinario = "Campo obrigatório";
       valid = false;
     }
-    setErrors(newErrors);
+    setErrors(errors);
     return valid;
   };
 
@@ -147,15 +169,16 @@ const Consultar: React.FC = () => {
       lote: '',
       dataAplicacao: '',
       proximaAplicacao: '',
-      veterinario: ''
+      veterinario: '',
+      peso: ''
     });
-
+    
     setShowInnerModal(false);
   };
 
     const validateAddVermifugo = () => {
       let valid = true;
-      let newErrors = { nome:'', marca: '', lote: '', dataAplicacao: '', proximaAplicacao: '' };
+      let newErrors = { nome:'', marca: '', lote: '', dataAplicacao: '', proximaAplicacao: '', peso: ''};
       if (novaVermifugo.nome === "") {
         newErrors.nome = "Campo obrigatório";
         valid = false;
@@ -176,8 +199,12 @@ const Consultar: React.FC = () => {
         newErrors.proximaAplicacao = "Campo obrigatório";
         valid = false;
       }
+      if (novaVermifugo.peso === ""){
+        newErrors.peso = "Campo obrigatório";
+        valid = false;
+      }
 
-      setErrorsVermifugo (newErrors);
+      setErrorsVermifugo(errors);
       return valid;
      };
 
@@ -202,6 +229,7 @@ const Consultar: React.FC = () => {
       lote: '',
       dataAplicacao: '',
       proximaAplicacao: '',
+      peso: ''
     });
 
       setShowAdicionarVermifugoModal(false);
@@ -249,11 +277,11 @@ const Consultar: React.FC = () => {
             </IonItem>
           ))}
         </IonList>
-  
+
         <IonModal isOpen={showOuterModal} onDidDismiss={handleCloseOuterModal}>
           <IonHeader>
             <IonToolbar>
-              <IonTitle>DETALHES DO PET</IonTitle>
+              <IonTitle class="ion-text-center">DETALHES DO PET</IonTitle>
             </IonToolbar>
           </IonHeader>
           <IonContent>
@@ -261,140 +289,189 @@ const Consultar: React.FC = () => {
               <div>
                 <p>Nome: {selectedPet.nome}</p>
                 <p>Data de Nascimento: {selectedPet.dataNascimento}</p>
+                <p>Sexo: {selectedPet.sexo}</p>
                 <p>Espécie: {selectedPet.especie}</p>
                 <p>Raça: {selectedPet.raca}</p>
                 <p>Observações: {selectedPet.observacoes}</p>
                 <IonButton onClick={handleOpenInnerModal}>Adicionar Vacina</IonButton>
                 <IonButton onClick={handleOpenAdicionarVermifugoModal}>Adicionar Vermifugo</IonButton>
-                <IonButton onClick={handleDeletePet}>Apagar Pet</IonButton>
                 <IonButton onClick={() => setShowConsultarVacinaModal(true)}>Consultar Vacina</IonButton>
                 <IonButton onClick={() => setShowConsultarVermifugoModal(true)}>Consultar Vermifugo</IonButton>
+                <p><IonButton onClick={handleDeletePet}>Apagar Pet</IonButton></p>
+                <p><IonButton onClick={handleCloseOuterModal}>Fechar</IonButton></p>
               </div>
             )}
           </IonContent>
         </IonModal>
   
-        <IonModal isOpen={showInnerModal} onDidDismiss={handleCloseInnerModal}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>ADICIONAR VACINA</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <IonList>
-              <IonItem>
-                <IonInput
-                  value={novaVacina.nome}
-                  placeholder="Nome da Vacina"
-                  onIonChange={(e: any) => setNovaVacina({ ...novaVacina, nome: e.target.value })}
-                />
-                {errors.nome && <p style={{ color: 'red' }}>{errors.nome}</p>}
-              </IonItem>
-              <IonItem>
-                <IonInput
-                  value={novaVacina.marca}
-                  placeholder="Marca"
-                  onIonChange={(e: any) => setNovaVacina({ ...novaVacina, marca: e.target.value })}
-                />
-                {errors.marca && <p style={{ color: 'red' }}>{errors.marca}</p>}
-              </IonItem>
-              <IonItem>
-                <IonInput
-                  value={novaVacina.lote}
-                  placeholder="Lote"
-                  onIonChange={(e: any) => setNovaVacina({ ...novaVacina, lote: e.target.value })}
-                />
-                {errors.lote && <p style={{ color: 'red' }}>{errors.lote}</p>}
-              </IonItem>
-              <IonItem>
-                <IonInput
-                  value={novaVacina.dataAplicacao}
-                  placeholder="Data da Aplicação"
-                  onIonChange={(e: any) => setNovaVacina({ ...novaVacina, dataAplicacao: e.target.value })}
-                />
-                {errors.dataAplicacao && <p style={{ color: 'red' }}>{errors.dataAplicacao}</p>}
-              </IonItem>
-              <IonItem>
-                <IonInput
-                  value={novaVacina.proximaAplicacao}
-                  placeholder="Próxima Aplicação"
-                  onIonChange={(e: any) => setNovaVacina({ ...novaVacina, proximaAplicacao: e.target.value })}
-                />
-                {errors.proximaAplicacao && <p style={{ color: 'red' }}>{errors.proximaAplicacao}</p>}
-              </IonItem>
-              <IonItem>
-                <IonInput
-                  value={novaVacina.veterinario}
-                  placeholder="Veterinário"
-                  onIonChange={(e: any) => setNovaVacina({ ...novaVacina, veterinario: e.target.value })}
-                />
-                {errors.veterinario && <p style={{ color: 'red' }}>{errors.veterinario}</p>}
-              </IonItem>
-            </IonList>
+<IonModal isOpen={showInnerModal} onDidDismiss={handleCloseInnerModal}>
+  <IonHeader>
+    <IonToolbar>
+      <IonTitle class="ion-text-center">ADICIONAR VACINA</IonTitle>
+    </IonToolbar>
+  </IonHeader>
+    <IonContent>
+      <IonList>
+        <IonItem>
+          <IonInput
+            value={novaVacina.nome}
+            placeholder="Nome da Vacina"
+            onIonChange={(e: any) => setNovaVacina({ ...novaVacina, nome: e.target.value })}
+          />
+            {errors.nome && <p style={{ color: 'red' }}>{errors.nome}</p>}
+        </IonItem>
+        <IonItem>
+          <IonInput
+            value={novaVacina.marca}
+            placeholder="Marca"
+            onIonChange={(e: any) => setNovaVacina({ ...novaVacina, marca: e.target.value })}
+          />
+            {errors.marca && <p style={{ color: 'red' }}>{errors.marca}</p>}
+          </IonItem>
+          <IonItem>
+            <IonInput
+              value={novaVacina.lote}
+              placeholder="Lote"
+              onIonChange={(e: any) => setNovaVacina({ ...novaVacina, lote: e.target.value })}
+            />
+              {errors.lote && <p style={{ color: 'red' }}>{errors.lote}</p>}
+          </IonItem>
+          <IonItem>
+            <IonInput
+              value={novaVacina.dataAplicacao}
+              placeholder="Data da Aplicação"
+              onIonChange={(e: any) => setNovaVacina({ ...novaVacina, dataAplicacao: e.target.value })}
+            />
+              {errors.dataAplicacao && <p style={{ color: 'red' }}>{errors.dataAplicacao}</p>}
+          </IonItem>
+          <IonItem>
+            <IonInput
+              value={novaVacina.proximaAplicacao}
+              placeholder="Próxima Aplicação"
+              onIonChange={(e: any) => setNovaVacina({ ...novaVacina, proximaAplicacao: e.target.value })}
+            />
+            {errors.proximaAplicacao && <p style={{ color: 'red' }}>{errors.proximaAplicacao}</p>}
+          </IonItem>
+          <IonItem>
+            <IonInput
+              value={novaVacina.veterinario}
+              placeholder="Veterinário"
+              onIonChange={(e: any) => setNovaVacina({ ...novaVacina, veterinario: e.target.value })}
+            />
+            {errors.veterinario && <p style={{ color: 'red' }}>{errors.veterinario}</p>}
+          </IonItem>
+          <IonItem>
+            <IonInput
+              value={novaVacina.peso}
+              placeholder="Peso"
+              onIonChange={(e: any) => setNovaVacina({ ...novaVacina, peso: e.target.value })}
+            />
+            {errors.peso && <p style={{ color: 'red' }}>{errors.peso}</p>}
+          </IonItem>
+    </IonList>
             <IonButton onClick={handleAddVacina}>Adicionar Vacina</IonButton>
             <IonButton onClick={handleCloseInnerModal}>Fechar</IonButton>
           </IonContent>
-        </IonModal>
+</IonModal>
   
-        <IonModal isOpen={showConsultarVermifugoModal} onDidDismiss={handleCloseConsultarVermifugoModal}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>CONSULTAR VERMIFUGO</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            {selectedPet && (
-              <div>
-                <IonList>
-                  {selectedPet.vermifugos && selectedPet.vermifugos.map((vermifugo: any, index: number) => (
-                    <IonItem key={index}>
-                      <IonLabel>Nome do Vermífugo: {vermifugo.nome}</IonLabel>
-                      <IonLabel>Marca: {vermifugo.marca}</IonLabel>
-                      <IonLabel>Lote: {vermifugo.lote}</IonLabel>
-                      <IonLabel>Data de Aplicação: {vermifugo.dataAplicacao}</IonLabel>
-                      <IonLabel>Próxima Aplicação: {vermifugo.proximaAplicacao}</IonLabel>
-                      <IonButton onClick={() => handleDeleteVermifugo(index)}>Apagar</IonButton>
-                    </IonItem>
-                  ))}
-                </IonList>
-              </div>
-            )}
-            <IonButton onClick={handleCloseConsultarVermifugoModal}>Fechar</IonButton>
-          </IonContent>
-        </IonModal>
-  
-        <IonModal isOpen={showConsultarVacinaModal} onDidDismiss={handleCloseConsultarVacinaModal}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>CONSULTAR VACINA</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            {selectedPet && (
-              <div>
-                <IonList>
-                  {selectedPet.vacinas && selectedPet.vacinas.map((vacina: any, index: number) => (
-                    <IonItem key={index}>
-            <IonLabel>Nome da Vacina: {vacina.nome}</IonLabel>
-            <IonLabel>Marca: {vacina.marca}</IonLabel>
-            <IonLabel>Lote: {vacina.lote}</IonLabel>           
-            <IonLabel>Data de Aplicação: {vacina.dataAplicacao}</IonLabel>
-            <IonLabel>Próxima Aplicação: {vacina.proximaAplicacao}</IonLabel>
-            <IonLabel>Veterinário: {vacina.veterinario}</IonLabel>
+<IonModal isOpen={showAdicionarVermifugoModal} onDidDismiss={handleCloseAdicionarVermifugoModal}>
+  <IonHeader>
+    <IonToolbar>
+      <IonTitle class="ion-text-center">ADICIONAR VERMIFUGO</IonTitle>
+    </IonToolbar>
+  </IonHeader>
+    <IonContent>
+      <IonList>
+        <IonItem>
+          <IonInput
+            value={novaVermifugo.nome}
+            placeholder="Nome do vermifugo"
+            onIonChange={(e: any) => setNovaVermifugo({ ...novaVermifugo, nome: e.target.value })}
+          />
+            {errors.nome && <p style={{ color: 'red' }}>{errors.nome}</p>}
+        </IonItem>
+        <IonItem>
+          <IonInput
+            value={novaVermifugo.marca}
+            placeholder="Marca"
+            onIonChange={(e: any) => setNovaVermifugo({ ...novaVermifugo, marca: e.target.value })}
+          />
+            {errors.marca && <p style={{ color: 'red' }}>{errors.marca}</p>}
           </IonItem>
-  ))}
-          </IonList>
-        </div>
+          <IonItem>
+            <IonInput
+              value={novaVermifugo.lote}
+              placeholder="Lote"
+              onIonChange={(e: any) => setNovaVermifugo({ ...novaVermifugo, lote: e.target.value })}
+            />
+              {errors.lote && <p style={{ color: 'red' }}>{errors.lote}</p>}
+          </IonItem>
+          <IonItem>
+            <IonInput
+              value={novaVermifugo.dataAplicacao}
+              placeholder="Data da Aplicação"
+              onIonChange={(e: any) => setNovaVermifugo({ ...novaVermifugo, dataAplicacao: e.target.value })}
+            />
+              {errors.dataAplicacao && <p style={{ color: 'red' }}>{errors.dataAplicacao}</p>}
+          </IonItem>
+          <IonItem>
+            <IonInput
+              value={novaVermifugo.proximaAplicacao}
+              placeholder="Próxima Aplicação"
+              onIonChange={(e: any) => setNovaVermifugo({ ...novaVermifugo, proximaAplicacao: e.target.value })}
+            />
+            {errors.proximaAplicacao && <p style={{ color: 'red' }}>{errors.proximaAplicacao}</p>}
+          </IonItem>
+          <IonItem>
+            <IonInput
+              value={novaVermifugo.peso}
+              placeholder="Peso"
+              onIonChange={(e: any) => setNovaVermifugo({ ...novaVermifugo, peso: e.target.value })}
+            />
+            {errors.peso && <p style={{ color: 'red' }}>{errors.peso}</p>}
+          </IonItem>
+    </IonList>
+            <IonButton onClick={handleAdicionarVermifugo}>Adicionar Vermifugo</IonButton>
+            <IonButton onClick={handleCloseAdicionarVermifugoModal}>Fechar</IonButton>
+          </IonContent>
+</IonModal>
+
+<IonModal isOpen={showConsultarVacinaModal} onDidDismiss={handleCloseConsultarVacinaModal}>
+  <IonHeader>
+    <IonToolbar>
+      <IonTitle class="ion-text-center">CONSULTAR VACINA </IonTitle>
+    </IonToolbar>
+  </IonHeader>
+  <IonContent>
+    {selectedPet && (
+      <div>
+        <IonList>
+          {selectedPet.vacinas && selectedPet.vacinas.map((vacina: any, index: number) => (
+            <IonItem key={index}>
+              <IonLabel class="ion-text-wrap">
+                <p><strong>Nome da Vacina:</strong> {vacina.nome}</p>
+                <p><strong>Marca:</strong> {vacina.marca}</p>
+                <p><strong>Lote:</strong> {vacina.lote}</p>
+                <p><strong>Data de Aplicação:</strong> {vacina.dataAplicacao}</p>
+                <p><strong>Próxima Aplicação:</strong> {vacina.proximaAplicacao}</p>
+                <p><strong>Veterinário:</strong> {vacina.veterinario}</p>
+                <p><strong>Peso:</strong> {vacina.peso}</p>
+              </IonLabel>
+              <IonButton onClick={() => handleDeleteVacina(index)}>Apagar</IonButton>
+            </IonItem>
+          ))}
+        </IonList>
+      </div>
     )}
     <IonButton onClick={handleCloseConsultarVacinaModal}>Fechar</IonButton>
   </IonContent>
 </IonModal>
-    
+
 
 <IonModal isOpen={showConsultarVermifugoModal} onDidDismiss={handleCloseConsultarVermifugoModal}>
   <IonHeader>
     <IonToolbar>
-      <IonTitle>CONSULTAR VERMIFUGO</IonTitle>
+      <IonTitle class="ion-text-center">CONSULTAR VERMIFUGO</IonTitle>
     </IonToolbar>
   </IonHeader>
   <IonContent>
@@ -403,11 +480,13 @@ const Consultar: React.FC = () => {
         <IonList>
           {selectedPet.vermifugos && selectedPet.vermifugos.map((vermifugo: any, index: number) => (
             <IonItem key={index}>
-              <IonLabel>Nome do Vermífugo: {vermifugo.nome}</IonLabel>
-              <IonLabel>Marca: {vermifugo.marca}</IonLabel>
-              <IonLabel>Lote: {vermifugo.lote}</IonLabel>
-              <IonLabel>Data de Aplicação: {vermifugo.dataAplicacao}</IonLabel>
-              <IonLabel>Próxima Aplicação: {vermifugo.proximaAplicacao}</IonLabel>
+              <IonLabel class="ion-text-wrap">
+                <p><strong>Nome do vermífugo: </strong>{vermifugo.nome}</p>
+                <p><strong>Marca: </strong>{vermifugo.marca}</p>
+                <p><strong>Data de aplicação: </strong>{vermifugo.dataAplicacao}</p>
+                <p><strong>Próxima aplicação: </strong>{vermifugo.proximaAplicacao}</p>
+                <p><strong>Peso: </strong>{vermifugo.peso}</p>
+              </IonLabel>
               <IonButton onClick={() => handleDeleteVermifugo(index)}>Apagar</IonButton>
             </IonItem>
           ))}
@@ -417,6 +496,7 @@ const Consultar: React.FC = () => {
     <IonButton onClick={handleCloseConsultarVermifugoModal}>Fechar</IonButton>
   </IonContent>
 </IonModal>
+
 
       </IonContent>
     </IonPage>

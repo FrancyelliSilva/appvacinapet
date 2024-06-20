@@ -1,15 +1,19 @@
 import {IonList, IonInput, IonItem, IonContent, IonHeader, IonPage, IonTitle,
-  IonToolbar, IonButton, IonSelect, IonLabel, IonText} from '@ionic/react';
+  IonToolbar, IonButton, IonSelect, IonLabel, IonText,
+  IonDatetime} from '@ionic/react';
 import Especie from '../components/Especie';
+import Sexo from '../components/sexo';
 import { useState } from 'react';
 import {useHistory } from 'react-router-dom';
 import './Adicionar.css';
 
-
 const Adicionar: React.FC = () => {
+  const [showPicker, setShowPicker] = useState(false);
+  
   const [formData, setFormData] = useState({
     nome: '', 
     dataNascimento: '',
+    sexo: '',
     especie: '',
     raca: '',
     observacoes: ''
@@ -17,28 +21,40 @@ const Adicionar: React.FC = () => {
 
   const [errors, setErrors] = useState({
     nome: '',
-    dataNascimento: '',
+    sexo: '',
     especie: '',
-    raca: ''
+    raca: '' ,
+    observacoes: ''
   });
 
   const history = useHistory();
+
+  const handleDateChange = (e: any) => {
+    const value = e.detail.value;
+    setFormData({ ...formData, dataNascimento: value });
+    setShowPicker(false);
+  };
   
   const handleFormChange = (e: any) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === 'observacoes'){
+      setFormData({ ...formData, observacoes: value });
+    }else {
+      setFormData({ ...formData, [name]: value.trim()});
+    }
+  
   };
 
   const validateForm = () => {
     let valid = true;
-    let newErrors = { nome: '', dataNascimento: '', especie: '', raca: ''};
+    let newErrors = { nome: '', sexo: '', especie: '', raca: '', observacoes: ''};
 
     if (!formData.nome) {
       newErrors.nome = 'O nome é obrigatório';
       valid = false;
     }
-    if (!formData.dataNascimento.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-      newErrors.dataNascimento = 'Data de nascimento deve estar no formato dd/mm/aaaa';
+    if (!formData.sexo) {
+      newErrors.sexo = 'O sexo é obrigatório';
       valid = false;
     }
     if (!formData.especie) {
@@ -47,6 +63,10 @@ const Adicionar: React.FC = () => {
     }
     if (!formData.raca) {
       newErrors.raca = 'A raça é obrigatória';
+      valid = false;
+    }
+    if (!formData.observacoes) {
+      newErrors.observacoes = 'As observações são obrigatórias';
       valid = false;
     }
   
@@ -64,6 +84,7 @@ const Adicionar: React.FC = () => {
     setFormData({
       nome: '',
       dataNascimento: '',
+      sexo: '',
       especie: '',
       raca: '',
       observacoes: ''
@@ -71,14 +92,12 @@ const Adicionar: React.FC = () => {
     history.push('/consultar');
   }
 };
-
-
     return (
  
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle class="ion-text-center">ADICIONAR</IonTitle>
+          <IonTitle class="ion-text-center">ADICIONAR PET</IonTitle>
         </IonToolbar>
       </IonHeader>
           <IonContent fullscreen className='center-content'>
@@ -90,9 +109,20 @@ const Adicionar: React.FC = () => {
               {errors.nome && <IonText color="danger">{errors.nome}</IonText>}
                 </IonItem>
                 <IonItem>
-                  <IonLabel position="stacked">Data de nascimento:</IonLabel>
-                  <IonInput name="dataNascimento" value={formData.dataNascimento} onIonChange={handleFormChange} pattern="\d{2}/\d{2}/\d{4}" title="Formato esperado: dd/mm/aaaa" />
-              {errors.dataNascimento && <IonText color="danger">{errors.dataNascimento}</IonText>}
+                    <IonLabel position="floating">Data de nascimento:</IonLabel>
+                      <IonInput name="dataNascimento" value={formData.dataNascimento} onIonFocus={() => setShowPicker(true)} onIonChange={handleFormChange}
+                        pattern="\d{2}/\d{2}/\d{4}" title="Formato esperado: dd/mm/aaaa"/>
+                            {showPicker && (
+                <IonDatetime presentation="date" min="1994-03-14" max="2050-12-14" value={formData.dataNascimento} onIonChange={handleDateChange}
+                />
+            )}
+                </IonItem>
+                <IonItem>
+                  <IonLabel position="stacked">Sexo:</IonLabel>
+                  <IonSelect name="sexo" value={formData.sexo} onIonChange={handleFormChange} interface="popover" className='ion-alignement-center'>
+                    <Sexo/>
+                  </IonSelect>
+                {errors.sexo && <IonText color="danger">{errors.sexo}</IonText>}
                 </IonItem>
 
                 <IonItem>
@@ -111,7 +141,9 @@ const Adicionar: React.FC = () => {
 
                 <IonItem>
                   <IonLabel position="stacked">Observações:</IonLabel>
-                    <IonInput name="observacoes" value={formData.observacoes} onIonChange={handleFormChange} maxlength={100} type="text" />                </IonItem>
+                    <IonInput name="observacoes" value={formData.observacoes} onIonChange={handleFormChange} type="text" />
+                     {errors.observacoes && <IonText color = "danger">{errors.observacoes}</IonText>} 
+                </IonItem>
               </IonList>
             </form>
                   <div className='center-button'>

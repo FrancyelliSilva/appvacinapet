@@ -14,6 +14,7 @@ import { archiveOutline,homeOutline, pawOutline} from 'ionicons/icons';
 import Inicio from './pages/Inicio';
 import Adicionar from './pages/Adicionar';
 import Consultar from './pages/Consultar';
+import Editar from './components/Editar';
 import './pages/Inicio.css'
 
 /* Core CSS required for Ionic components to work properly */
@@ -52,6 +53,9 @@ const App: React.FC = () => (
           </Route>
           <Route exact path="/">
             <Redirect to="/Inicio" />
+          </Route>
+          <Route exact path="/Editar">
+            <Editar />
           </Route>
         </IonRouterOutlet>
         <IonTabBar className='color' slot="bottom">
